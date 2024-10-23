@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="tools.js"></script>
+</head>
+<body>
+<h1>Working tools</h1>
+<form name="bitconv">
+	<h2>Binary Converter</h2>
+	<select id="in_type">
+		<option>Binary</option>
+		<option>Decimal</option>
+		<option>Hexadecimal</option>
+	</select>
+	<input type="text" id="finput" name="finput"/><br>
+	<p id="bitconc-err" hidden>Invalid input</p>
+	<input type="button" onclick="return convert()" value="Calculate"/><br>
+	<select id="out_type">
+		<option>Binary</option>
+		<option>Decimal</option>
+		<option>Hexadecimal</option>
+	</select>
+	<input type="text" id="foutput" name="foutput" readonly/><br>
+</form>
+</body>
+</html>
+
