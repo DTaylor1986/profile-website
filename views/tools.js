@@ -17,7 +17,7 @@ function check_dec(value){
     return true;
 }
 function check_hex(value){
-    const regex_not_hex = /[^0-9 a-f]/;
+    const regex_not_hex = /[^0-9 a-f A-F]/;
     if(regex_not_hex.test(value)){
         return false;
     }
@@ -42,22 +42,24 @@ function convert() {
 
     switch(input_type){
         case "Binary":
-            //validate binary
+            //validate binary, if true launch correct method by output
             if(check_bin(input)){
+                let output;
                switch(out_type){
                     case "Binary":
                         foutput.value = input;
                         error_msg.hidden = true;;
                         break;
                     case "Decimal":
-                        let output = bit2dec(input);
+                        output = bit2dec(input);
                         foutput.value = output;
                         error_msg.hidden = true;
                         break;
                     case "Hexadecimal":
-                        error_msg.innerHTML = "Conversion not yet implemented";
-                        foutput.value= "";
-                        error_msg.hidden = false;
+                        let intermediate = bit2dec(input);
+                        output = dec2hex(intermediate);
+                        foutput.value = output;
+                        error_msg.hidden = true;
                         break;
                 }                 
             }
@@ -67,22 +69,23 @@ function convert() {
             }            
             break;
         case "Decimal":
-            //validate a number
+            //validate a number, if true launch correct method by output
             if(check_dec(input)){
+                    let output;
                     switch(out_type){
                     case "Binary":
-                        error_msg.innerHTML = "Conversion not yet implemented";
-                        foutput.value= "";
-                        error_msg.hidden = false;
+                        output = dec2bit(input)
+                        foutput.value= output;
+                        error_msg.hidden = true;
                         break;                 
                     case "Decimal":
                         foutput.value = input;
                         error_msg.hidden = true;
                         break;
                     case "Hexadecimal":
-                        error_msg.innerHTML = "Conversion not yet implemented";
-                        foutput.value= "";
-                        error_msg.hidden = false;
+                        output = dec2hex(input)
+                        foutput.value= output;
+                        error_msg.hidden = true;
                         break;
                 }                 
             }
@@ -92,18 +95,20 @@ function convert() {
             }            
              break;
         case "Hexadecimal":
-            //validate hexadecimal
+            //validate hexadecimal, if true launch correct method by output
             if(check_hex(input)){
+                let output
                 switch(out_type){
                     case "Binary":
-                        foutput.value = input;error_msg.innerHTML = "Conversion not yet implemented";
-                        foutput.value= "";
-                        error_msg.hidden = false;
+                        let intermediate = hex2dec(input);
+                        output = dec2bit(intermediate);
+                        foutput.value= output;
+                        error_msg.hidden = true;
                         break;                    
                     case "Decimal":
-                        foutput.value = input;error_msg.innerHTML = "Conversion not yet implemented";
-                        foutput.value= "";
-                        error_msg.hidden = false;
+                        output = hex2dec(input);
+                        foutput.value= output;
+                        error_msg.hidden = true;
                         break;  
                     
                     case "Hexadecimal":
@@ -144,14 +149,108 @@ function bit2dec(x){
 }
 
 function dec2bit(x){
-
+    var bin_string = "";
+    
+    //build binary weight table
+    let weight = [];
+    for (let i=1; i<=x; i=i*2){
+        weight.unshift(i);
+    }
+    //assign binary string
+    for (let i=0; i < weight.length; i++){
+        //add 0 or 1
+        if(x - weight[i] >= 0){
+            x = x-weight[i];
+            bin_string += "1";
+        }
+        else{
+            bin_string += "0";
+        }
+    }
+    return bin_string;
 
 }
 
 function hex2dec(x){
+    let y = 0;  //total value
+    let b;      //bit value
+    let digit = /[0-9]/;
 
+    for (i=0; i< x.length; i++){
+        if(digit.test(x[i])){
+            b = Number(x[i]);
+        }
+        else{
+            switch (x[i].toLowerCase()) {
+                case "a":
+                    b = 10;
+                    break;
+                case "b":
+                    b = 11;
+                    break;
+                case "c":
+                    b = 12;
+                    break;
+                case "d":
+                    b = 13;
+                    break;
+                case "e":
+                    b = 14;
+                    break;
+                case "f":
+                    b = 15;
+                    break;
+                default:
+                    break;
+            }
+        }
+        y = y + b + i*15;
+    }
+    return y;
 }
 
-function dec3hex(x){
-
+function dec2hex(x){
+    var hex_string = "";
+    var bees = [] //test variable, remove later
+    var b;     //ready variable for individual bit
+    //build hexadecimal weight table
+    let weight = [];
+    for (let i=1; i<=x; i=i*16){
+        weight.unshift(i);
+    }
+    //assign binary string
+    for (let i=0; i < weight.length; i++){
+        //x divided by weight should always by <16
+        b = x / weight[i] | 0;  // "| 0" bitwise operations in JavaScript automatically convert the result to an integer by removing the fractional part.
+        x = x - b*weight[i];    //remove current bit 
+        
+        if(b < 10){
+            hex_string += b.toString();
+        }
+        else{
+            switch(b){
+                case 10:
+                    hex_string += "a";
+                    break;
+                case 11:
+                    hex_string += "b";
+                    break;
+                case 12:
+                    hex_string += "c";
+                    break;
+                case 13:
+                    hex_string += "d";
+                    break;
+                case 14:
+                    hex_string += "e";
+                    break;
+                case 15:
+                    hex_string += "f";
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    return hex_string;
 }
